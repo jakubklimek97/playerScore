@@ -35,6 +35,38 @@ namespace PlayerScore
             }
             return new Report[0];
         }
+        public async Task<Report[]> ProcessReport(string reportId)
+        {
+            string reqUrl = "https://www.warcraftlogs.com:443/v1/report/fights/" + reportId + "?translate=true&api_key=" + apiKey;
+            try
+            {
+                HttpResponseMessage response = await client.GetAsync(reqUrl);
+                response.EnsureSuccessStatusCode();
+                string json = await response.Content.ReadAsStringAsync();
+                int pos = json.IndexOf("\"fights\":") + 10;
+                string subJson = json.Substring(pos, json.IndexOf("\"lang\"")-pos);
+                Fight[] fightArray = null;
+                MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(subJson));
+                DataContractJsonSerializer serial = new DataContractJsonSerializer(typeof(Fight[]));
+                fightArray = serial.ReadObject(ms) as Fight[];
+                ms.Close();
+
+                pos = json.IndexOf("\"friendlies\":") + 14;
+                subJson = json.Substring(pos, json.IndexOf("\"enemies\"") - pos);
+                ms = new MemoryStream(Encoding.UTF8.GetBytes(subJson));
+                serial = new DataContractJsonSerializer(typeof(Friendlies[]));
+                Friendlies[] friendliesArray = serial.ReadObject(ms) as Friendlies[];
+                ms.Close();
+
+
+
+                //todo: dla kazdej walki wykonanie testow
+            }
+            catch (HttpRequestException e)
+            {
+            }
+            return new Report[0];
+        }
         private Report[] tmp;
         private static readonly HttpClient client = new HttpClient();
         string apiKey;

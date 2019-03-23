@@ -16,10 +16,10 @@ namespace PlayerScore
         {
             InitializeComponent();
         }
-
+        parser pars = new parser("3f7ea984a4ad3e1b579fc28ecb5958b6");
         private void button1_Click(object sender, EventArgs e)
         {
-            parser pars = new parser("3f7ea984a4ad3e1b579fc28ecb5958b6");
+            
             // Report[] tmp = await pars.GetReportsAsync(1553109180900);
             List<Report> res = new List<Report>();
             res.Clear();
@@ -36,7 +36,7 @@ namespace PlayerScore
         {
             if(reportsTable.SelectedRows.Count > 0)
             {
-                
+                Task<Report[]>.Run(async () => { return await pars.ProcessReport(reportsTable.SelectedRows[0].Cells[5].Value as string); });
             }
         }
     }
